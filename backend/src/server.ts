@@ -1,0 +1,18 @@
+import app from "./app.js";
+import { authMiddleware } from "./middlewares/auth.middleware.js";
+
+const PORT = 3000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+app.get(
+  "/api/private",
+  authMiddleware,
+  (req, res) => {
+    res.json({
+      message:
+        "Ruta protegida funcionando",
+    });
+  }
+);
