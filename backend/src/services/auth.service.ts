@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
-import { prisma } from "../config/prisma.js";
 import jwt from "jsonwebtoken";
+import { prisma } from "../config/prisma.js";
+
 interface RegisterData {
   firstName: string;
   lastName: string;
@@ -34,8 +35,10 @@ export async function registerUser(
     throw new Error("Usuario ya registrado");
   }
 
-  const hashedPassword =
-    await bcrypt.hash(data.password, 10);
+  const hashedPassword = await bcrypt.hash(
+    data.password,
+    10
+  );
 
   const user = await prisma.user.create({
     data: {
@@ -45,17 +48,34 @@ export async function registerUser(
       email: data.email,
       phone: data.phone,
       password: hashedPassword,
+      role: "USER",
+    },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      username: true,
+      email: true,
+      role: true,
     },
   });
 
-  //await prisma.cart.create({
-    //data: {
-      //userId: user.id,
-    //},
-  //});
+  await prisma.cart.create({
+    data: {
+      userId: user.id,
+    },
+  });
 
-  return user;
+  return {
+    id: user.id,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    username: user.username,
+    email: user.email,
+    role: user.role,
+  };
 }
+
 export async function loginUser(
   email: string,
   password: string
@@ -63,6 +83,15 @@ export async function loginUser(
   const user = await prisma.user.findUnique({
     where: {
       email,
+    },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      username: true,
+      email: true,
+      password: true,
+      role: true,
     },
   });
 
@@ -84,6 +113,7 @@ export async function loginUser(
       id: user.id,
       email: user.email,
       username: user.username,
+      role: user.role,
     },
     process.env.JWT_SECRET as string,
     {
@@ -99,6 +129,7 @@ export async function loginUser(
       lastName: user.lastName,
       username: user.username,
       email: user.email,
+      role: user.role,
     },
   };
 }

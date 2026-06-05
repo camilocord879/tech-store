@@ -1,3 +1,4 @@
+import "dotenv/config";
 import app from "./app.js";
 import { authMiddleware } from "./middlewares/auth.middleware.js";
 
