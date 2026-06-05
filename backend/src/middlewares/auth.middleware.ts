@@ -28,16 +28,26 @@ export function authMiddleware(
       });
     }
 
-    jwt.verify(
-      token,
-      process.env.JWT_SECRET as string
-    );
+    const decoded = jwt.verify(
+  token,
+  process.env.JWT_SECRET as string
+) as {
+  id: string;
+  email: string;
+  username: string;
+  role: string;
+};
 
+req.user = {
+  userId: decoded.id,
+  email: decoded.email,
+  role: decoded.role,
+};
     next();
 
-  } catch {
+  } catch (error) {
     return res.status(401).json({
       message: "Token inválido",
     });
   }
-}
+};

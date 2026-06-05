@@ -67,3 +67,30 @@ export const updateProduct = async (
             error: "Error updating product",
         });
     }}
+export const searchProducts = async (
+  req: Request,
+  res: Response ) => {  
+  try {
+    const products =
+      await productService.searchProducts(
+        req.query.q as string
+      );  
+      return res.status(200).json(products);
+  } catch (error) {
+    return res.status(500).json({
+      error: "Error searching products",
+    });
+  }
+};
+export const getFeaturedProducts = async (
+  req: Request,
+  res: Response ) => {  
+  try {
+    const products =
+      await productService.getFeaturedProducts();  
+      return res.status(200).json(products);
+  } catch (error) {
+    return res.status(500).json({
+      error: "Error fetching featured products",
+    });
+  }};

@@ -27,3 +27,23 @@ export const updateProduct = async (id: string, data: any) => {
     data,
   });
 };
+export const searchProducts = async (query: string) => {
+  return prisma.product.findMany({
+    where: { name: { contains: query, mode: "insensitive" } },
+  });
+};
+export const filterProductsByCategory = async (category: string) => {
+  return prisma.product.findMany({
+    where: { category },
+  });
+};
+export const filterProductsByPriceRange = async (min: number, max: number) => {
+  return prisma.product.findMany({
+    where: { price: { gte: min, lte: max } },
+  });
+};
+export const getFeaturedProducts = async () => {
+  return prisma.product.findMany({
+    where: { featured: true },
+  });
+}
