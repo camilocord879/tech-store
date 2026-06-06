@@ -2,6 +2,8 @@ import type { Request, Response } from "express";
 import { registerSchema } from "../schemas/auth.schema.js";
 import { registerUser } from "../services/auth.service.js";
 import { loginUser } from "../services/auth.service.js";
+import { getCurrentUser } from "../services/auth.service.js";
+import { updateProfile } from "../services/auth.service.js";
 export async function register(
   req: Request,
   res: Response
@@ -44,6 +46,47 @@ export async function login(
         error instanceof Error
           ? error.message
           : "Error"
+    });
+
+  }
+}
+export async function me(
+  req: Request,
+  res: Response
+) {
+  try {
+    const user =
+      await getCurrentUser(
+        req.user!.userId
+      );
+
+    return res.status(200).json(user);
+
+  } catch {
+    return res.status(500).json({
+      message: "Error obteniendo usuario",
+    });
+  }
+}
+
+export async function updateUserProfile(
+  req: Request,
+  res: Response
+) {
+  try {
+
+    const user =
+      await updateProfile(
+        req.user!.userId,
+        req.body
+      );
+
+    return res.status(200).json(user);
+
+  } catch (error) {
+
+    return res.status(500).json({
+      message: "Error actualizando perfil",
     });
 
   }

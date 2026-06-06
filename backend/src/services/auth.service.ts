@@ -9,6 +9,7 @@ interface RegisterData {
   email: string;
   phone: string;
   password: string;
+  confirmPassword: string;
 }
 
 export async function registerUser(
@@ -57,6 +58,7 @@ export async function registerUser(
       username: true,
       email: true,
       role: true,
+
     },
   });
 
@@ -132,4 +134,49 @@ export async function loginUser(
       role: user.role,
     },
   };
+}
+export async function getCurrentUser(
+  userId: string
+) {
+  return prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      username: true,
+      email: true,
+      phone: true,
+      role: true,
+      createdAt: true,
+    },
+  });
+}
+
+export async function updateProfile(
+  userId: string,
+  data: {
+    firstName?: string;
+    lastName?: string;
+    username?: string;
+    phone?: string;
+  }
+) {
+  return prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data,
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      username: true,
+      email: true,
+      phone: true,
+      role: true,
+    },
+  });
 }
