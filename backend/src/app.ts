@@ -12,7 +12,10 @@ import { sanitizeMiddleware } from "./middlewares/sanitize.middleware.js";
 import { errorMiddleware } from "./middlewares/error.middleware.js";
 
 const app = express();
-
+app.use((req, res, next) => {
+  console.log("REQUEST:", req.method, req.originalUrl);
+  next();
+});
 // Seguridad de cabeceras
 app.use(helmet());
 
@@ -33,8 +36,7 @@ app.use("/api", limiter);
 app.use(express.json());
 
 // Sanitización de entradas contra XSS y prototype pollution
-app.use(sanitizeMiddleware);
-
+//appse(sanitizeMiddleware);
 app.use(
   "/api/cart",
   cartRoutes
@@ -69,5 +71,4 @@ app.use(
 
 // Manejador global de errores (debe registrarse al final)
 app.use(errorMiddleware);
-
 export default app;

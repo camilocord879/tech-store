@@ -82,6 +82,8 @@ export async function loginUser(
   email: string,
   password: string
 ) {
+  console.log("=== LOGIN INTENTO ===", { email });
+
   const user = await prisma.user.findUnique({
     where: {
       email,
@@ -96,7 +98,7 @@ export async function loginUser(
       role: true,
     },
   });
-
+  console.log("=== USER ENCONTRADO ===", user);
   if (!user) {
     throw new Error("Credenciales inválidas");
   }
@@ -105,6 +107,7 @@ export async function loginUser(
     password,
     user.password
   );
+  console.log("=== PASSWORD MATCH ===", passwordMatch);
 
   if (!passwordMatch) {
     throw new Error("Credenciales inválidas");
@@ -122,6 +125,7 @@ export async function loginUser(
       expiresIn: "7d",
     }
   );
+  console.log("=== TOKEN GENERADO EXITOSAMENTE ===");
 
   return {
     token,
