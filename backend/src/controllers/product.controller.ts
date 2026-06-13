@@ -57,25 +57,26 @@ export const updateProduct = async (
 ) => {
   try {
     const product =
-        await productService.updateProduct(
-            req.params.id as string,
-            req.body
-        );
+      await productService.updateProduct(
+        req.params.id as string,
+        req.body
+      );
     return res.status(200).json(product);
-    } catch (error) {
-        return res.status(500).json({
-            error: "Error updating product",
-        });
-    }}
+  } catch (error) {
+    return res.status(500).json({
+      error: "Error updating product",
+    });
+  }
+}
 export const searchProducts = async (
   req: Request,
-  res: Response ) => {  
+  res: Response) => {
   try {
     const products =
       await productService.searchProducts(
         req.query.q as string
-      );  
-      return res.status(200).json(products);
+      );
+    return res.status(200).json(products);
   } catch (error) {
     return res.status(500).json({
       error: "Error searching products",
@@ -84,13 +85,14 @@ export const searchProducts = async (
 };
 export const getFeaturedProducts = async (
   req: Request,
-  res: Response ) => {  
+  res: Response) => {
   try {
     const products =
-      await productService.getFeaturedProducts();  
-      return res.status(200).json(products);
+      await productService.getFeaturedProducts();
+    return res.status(200).json(products);
   } catch (error) {
     return res.status(500).json({
       error: "Error fetching featured products",
     });
-  }};
+  }
+};

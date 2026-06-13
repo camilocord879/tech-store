@@ -9,6 +9,10 @@ router.get(
   "/",
   productController.getProducts
 );
+router.get(
+  "/search",
+  productController.searchProducts
+);
 
 router.get(
   "/featured",

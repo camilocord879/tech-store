@@ -8,6 +8,9 @@ export function errorMiddleware(
   res: Response,
   next: NextFunction
 ) {
+  console.error("=== ERROR MIDDLEWARE ===")
+  console.error("Message:", err.message);
+  console.error("Stack:", err.stack);
   // Registrar el error de manera estructurada
   logger.error(err.message || "Error interno del servidor", {
     stack: err.stack,
@@ -21,12 +24,14 @@ export function errorMiddleware(
     return res.status(400).json({
       success: false,
       message: "Error de validación",
-      errors: err.errors.map((e) => ({
+      errors: err.issues.map((e: any) => ({
         field: e.path.join("."),
         message: e.message,
       })),
     });
   }
+  console.error("ERROR COMPLETO:");
+  console.error(err);
 
   const status = err.status || err.statusCode || 500;
   const message = err.message || "Error interno del servidor";
