@@ -1,4 +1,4 @@
-import type { Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
 import * as orderService from "../services/order.service.js";
 
 export const createOrder = async (
@@ -59,5 +59,28 @@ export const getOrderById = async (
     return res.status(500).json({
       message: "Error consultando pedido",
     });
+  }
+};
+
+export const getInvoice = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user!.userId;
+    const isAdmin = req.user!.role?.toString().toUpperCase() === "ADMIN";
+
+    const invoice = await orderService.getOrderInvoice(id as string, userId, isAdmin);
+    return res.status(200).json(invoice);
+  } catch (error: any) {
+    if (error.message === "Acceso denegado a esta factura") {
+      return res.status(403).json({ message: error.message });
+    }
+    if (error.message === "Pedido no encontrado") {
+      return res.status(404).json({ message: error.message });
+    }
+    next(error);
   }
 };

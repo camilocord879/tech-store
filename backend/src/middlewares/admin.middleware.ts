@@ -3,19 +3,58 @@ import type {
   Response,
   NextFunction,
 } from "express";
+import jwt from "jsonwebtoken";
 
 export function adminMiddleware(
   req: Request,
   res: Response,
   next: NextFunction
 ) {
-  const role = req.user?.role?.toString().toUpperCase();
+  try {
+    const authHeader = req.headers.authorization;
 
-  if (role !== "ADMIN") {
-    return res.status(403).json({
-      message: "Acceso denegado",
+    if (!authHeader) {
+      return res.status(401).json({
+        message: "Token requerido",
+      });
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    if (!token) {
+      return res.status(401).json({
+        message: "Token requerido",
+      });
+    }
+
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET as string
+    ) as {
+      id: string;
+      email: string;
+      username: string;
+      role: string;
+    };
+
+    req.user = {
+      userId: decoded.id,
+      email: decoded.email,
+      role: decoded.role,
+    };
+
+    const role = req.user.role?.toString().toUpperCase();
+
+    if (role !== "ADMIN") {
+      return res.status(403).json({
+        message: "Acceso denegado",
+      });
+    }
+
+    next();
+  } catch (error) {
+    return res.status(401).json({
+      message: "Token inválido",
     });
   }
-
-  next();
-}
+}

@@ -1,9 +1,11 @@
-import type { Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
 import { registerSchema } from "../schemas/auth.schema.js";
 import { registerUser } from "../services/auth.service.js";
 import { loginUser } from "../services/auth.service.js";
 import { getCurrentUser } from "../services/auth.service.js";
 import { updateProfile } from "../services/auth.service.js";
+import { updateUserProfileSchema } from "../schemas/user.schema.js";
+
 export async function register(
   req: Request,
   res: Response
@@ -71,23 +73,18 @@ export async function me(
 
 export async function updateUserProfile(
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) {
   try {
-
-    const user =
-      await updateProfile(
-        req.user!.userId,
-        req.body
-      );
+    const data = updateUserProfileSchema.parse(req.body);
+    const user = await updateProfile(
+      req.user!.userId,
+      data as any
+    );
 
     return res.status(200).json(user);
-
   } catch (error) {
-
-    return res.status(500).json({
-      message: "Error actualizando perfil",
-    });
-
+    next(error);
   }
 }
