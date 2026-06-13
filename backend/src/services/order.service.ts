@@ -128,3 +128,86 @@ export const getOrderByIdForUser = async (
     },
   });
 };
+
+export const getOrderInvoice = async (
+  orderId: string,
+  userId: string,
+  isAdmin: boolean
+) => {
+  const order = await prisma.order.findUnique({
+    where: { id: orderId },
+    include: {
+      user: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          username: true,
+          email: true,
+          phone: true,
+        },
+      },
+      items: {
+        include: {
+          product: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!order) {
+    throw new Error("Pedido no encontrado");
+  }
+
+  // Autorización: solo el dueño o un administrador
+  if (order.userId !== userId && !isAdmin) {
+    throw new Error("Acceso denegado a esta factura");
+  }
+
+  // Generar número de factura secuencial: contar cuántas órdenes se crearon antes o al mismo tiempo
+  const count = await prisma.order.count({
+    where: {
+      OR: [
+        {
+          createdAt: {
+            lt: order.createdAt,
+          },
+        },
+        {
+          createdAt: order.createdAt,
+          id: {
+            lte: order.id,
+          },
+        },
+      ],
+    },
+  });
+
+  const year = new Date(order.createdAt).getFullYear();
+  const invoiceNumber = `FAC-${year}-${count.toString().padStart(6, "0")}`;
+
+  const products = order.items.map((item) => ({
+    name: item.product.name,
+    quantity: item.quantity,
+    price: item.unitPrice,
+    subtotal: item.quantity * item.unitPrice,
+  }));
+
+  return {
+    invoiceNumber,
+    date: order.createdAt,
+    client: {
+      firstName: order.user.firstName,
+      lastName: order.user.lastName,
+      username: order.user.username,
+      email: order.user.email,
+      phone: order.user.phone,
+    },
+    products,
+    total: order.total,
+  };
+};

@@ -1,47 +1,42 @@
 import { Router } from "express";
 import * as productController from "../controllers/product.controller.js";
 import { adminMiddleware } from "../middlewares/admin.middleware.js";
-import { authMiddleware } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-router.post(
+// Endpoints públicos
+router.get(
   "/",
-  productController.createProduct,
-  adminMiddleware,
-  authMiddleware
+  productController.getProducts
 );
 
 router.get(
-  "/",
-  productController.getProducts,
-  adminMiddleware,
-  authMiddleware
+  "/featured",
+  productController.getFeaturedProducts
 );
 
 router.get(
   "/:id",
-  productController.getProductById,
+  productController.getProductById
+);
+
+// Endpoints administrativos protegidos
+router.post(
+  "/",
   adminMiddleware,
-  authMiddleware
+  productController.createProduct
 );
 
 router.delete(
   "/:id",
-  productController.deleteProduct,
   adminMiddleware,
-  authMiddleware  
+  productController.deleteProduct
 );
+
 router.put(
   "/:id",
-  productController.updateProduct,
   adminMiddleware,
-  authMiddleware
+  productController.updateProduct
 );
-router.get(
-  "/featured",
-  productController.getFeaturedProducts,
-  adminMiddleware,
-  authMiddleware
-);
+
 export default router;
